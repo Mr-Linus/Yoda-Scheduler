@@ -3,15 +3,18 @@ module github.com/NJUPT-ISL/Yoda-Scheduler
 go 1.13
 
 require (
-	k8s.io/api v0.17.1 // indirect
-	k8s.io/apimachinery v0.17.1 // indirect
+	github.com/spf13/cobra v0.0.5
+	k8s.io/api v0.17.0
+	k8s.io/apimachinery v1.16.2
+	k8s.io/component-base v0.0.0
+	k8s.io/klog v1.0.0
 	k8s.io/kubernetes v1.17.1
 )
 
 replace (
 	k8s.io/api => k8s.io/api v0.0.0-20191122220107-b5267f2975e0
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.0.0-20191122222427-64482ea217ff
-	k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20191004074956-c5d2f014d689
+	k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20191121175448-79c2a76c473a
 	k8s.io/apiserver => k8s.io/apiserver v0.0.0-20191121180716-5a28f8b2ad8e
 	k8s.io/cli-runtime => k8s.io/cli-runtime v0.0.0-20191122222818-9150eb3ded31
 	k8s.io/client-go => k8s.io/client-go v0.0.0-20191121175918-3a262fe58afa

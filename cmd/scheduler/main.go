@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda"
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/register"
 	"k8s.io/component-base/logs"
-	"k8s.io/kubernetes/cmd/kube-scheduler/app"
 	"math/rand"
 	"os"
 	"time"
@@ -12,9 +11,7 @@ import (
 
 func main(){
 	rand.Seed(time.Now().UTC().UnixNano())
-	command := app.NewSchedulerCommand(
-		app.WithPlugin(yoda.Name, yoda.New),
-	)
+	command := register.Register()
 	logs.InitLogs()
 	defer logs.FlushLogs()
 	if err := command.Execute(); err != nil {
