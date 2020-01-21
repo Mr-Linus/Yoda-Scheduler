@@ -43,7 +43,7 @@ func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.
 					return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPUNoMemory")
 				}
 			}
-			return framework.NewStatus(framework.Unschedulable, "")
+			return framework.NewStatus(framework.Success, "")
 		}
 		return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Unhealthy")
 	}

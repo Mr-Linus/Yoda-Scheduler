@@ -51,12 +51,12 @@ func PodFitsLevel(pod *v1.Pod,node *nodeinfo.NodeInfo) bool{
 	switch pod.Labels["scv/Level"] {
 		case "High": podLevel = 3
 		case "Medium": podLevel = 2
-		case "Low": podLevel = 2
+		case "Low": podLevel = 1
 	}
 	switch node.Node().Labels["scv/Level"] {
-		case "High": podLevel = 3
-		case "Medium": podLevel = 2
-		case "Low": podLevel = 2
+		case "High": nodeLevel = 3
+		case "Medium": nodeLevel = 2
+		case "Low": nodeLevel = 1
 	}
 	if nodeLevel >= podLevel{
 		return true

@@ -2,14 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1258bb9d-36a3-4c05-aaa7-27518f8543e0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/deploy/deploy.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/register/register.go" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/yoda-scheduler" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/scheduler/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/scheduler/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/yoda/filter.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/filter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/yoda/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/scheduler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
