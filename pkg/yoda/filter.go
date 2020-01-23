@@ -65,9 +65,10 @@ func PodFitsLevel(pod *v1.Pod,node *nodeinfo.NodeInfo) bool{
 }
 
 func StrToUInt(str string) uint {
-	i, e := strconv.Atoi(str)
-	if e != nil {
+	if i, e := strconv.Atoi(str);e != nil {
 		return 0
+	}else {
+		return uint(i)
 	}
-	return uint(i)
+
 }

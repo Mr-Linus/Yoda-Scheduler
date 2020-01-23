@@ -166,9 +166,15 @@ rules:
       - get
       - list
       - watch
-  - apiGroups: ["storage.k8s.io"]
-    resources: ["storageclasses", "csinodes"]
-    verbs: ["watch", "list", "get"]
+  - apiGroups:
+      - "storage.k8s.io"
+    resources:
+      - storageclasses
+      - csinodes
+    verbs:
+      - watch
+      - list
+      - get
   - apiGroups:
       - "coordination.k8s.io"
     resources:

@@ -29,6 +29,18 @@ func (y *Yoda) Name() string {
 	return Name
 }
 
+func New(configuration *runtime.Unknown, f framework.FrameworkHandle) (framework.Plugin, error) {
+	args := &Args{}
+	if err := framework.DecodeInto(configuration, args); err != nil {
+		return nil, err
+	}
+	klog.V(3).Infof("get plugin config args: %+v", args)
+	return &Yoda{
+		args: args,
+		handle: f,
+	}, nil
+}
+
 func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, node *nodeinfo.NodeInfo) *framework.Status {
 	klog.V(3).Infof("filter pod: %v, node: %v", pod.Name, node.Node().Name)
 	if NodeHasGPU(node){
@@ -50,14 +62,6 @@ func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.
 	return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" No GPU")
 }
 
-func New(configuration *runtime.Unknown, f framework.FrameworkHandle) (framework.Plugin, error) {
-	args := &Args{}
-	if err := framework.DecodeInto(configuration, args); err != nil {
-		return nil, err
-	}
-	klog.V(3).Infof("get plugin config args: %+v", args)
-	return &Yoda{
-		args: args,
-		handle: f,
-	}, nil
+func (y *Yoda) PostFilter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
+	return ParallelCollection(state,nodes,filteredNodesStatuses)
 }

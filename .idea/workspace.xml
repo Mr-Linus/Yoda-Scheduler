@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1258bb9d-36a3-4c05-aaa7-27518f8543e0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/yoda-scheduler" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/yoda/collection.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/yoda/filter.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/filter.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/yoda/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/scheduler.go" afterDir="false" />
@@ -87,6 +87,10 @@
       <screen x="0" y="23" width="1626" height="1027" />
     </state>
     <state x="474" y="202" key="#Go_Modules_(vgo)/0.23.1626.1027/-1920.-154.1920.1057@0.23.1626.1027" timestamp="1579500609076" />
+    <state x="288" y="172" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1579760377331">
+      <screen x="0" y="23" width="1614" height="1027" />
+    </state>
+    <state x="288" y="172" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1614.1027/-1920.-154.1920.1057@0.23.1614.1027" timestamp="1579760377331" />
     <state x="343" y="158" key="SettingsEditor" timestamp="1579513943599">
       <screen x="0" y="23" width="1619" height="1027" />
     </state>
