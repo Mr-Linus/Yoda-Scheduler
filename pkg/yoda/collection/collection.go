@@ -1,6 +1,7 @@
-package yoda
+package collection
 
 import (
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
@@ -20,8 +21,8 @@ func CollectMaxValue(value string,state *framework.CycleState,nodes []*v1.Node,f
 	Max := Data{Value:0}
 	for _,n := range nodes{
 		if filteredNodesStatuses[n.GetName()].IsSuccess(){
-			if StrToUInt(n.Labels["scv/"+value]) > Max.Value{
-				Max.Value = StrToUInt(n.Labels["scv/FreeMemory"])
+			if filter.StrToUInt(n.Labels["scv/"+value]) > Max.Value{
+				Max.Value = filter.StrToUInt(n.Labels["scv/FreeMemory"])
 			}
 		}
 	}

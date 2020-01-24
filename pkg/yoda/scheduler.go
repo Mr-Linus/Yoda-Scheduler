@@ -2,6 +2,9 @@ package yoda
 
 import (
 	"context"
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/collection"
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/sort"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog"
@@ -13,7 +16,11 @@ const (
 	Name  = "yoda"
 )
 
-var _ framework.FilterPlugin = &Yoda{}
+var (
+	_ framework.FilterPlugin = &Yoda{}
+	_ framework.PostFilterPlugin = &Yoda{}
+	_ framework.QueueSortPlugin = &Yoda{}
+)
 
 type Args struct {
 	KubeConfig string `json:"kubeconfig,omitempty"`
@@ -43,25 +50,25 @@ func New(configuration *runtime.Unknown, f framework.FrameworkHandle) (framework
 
 func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, node *nodeinfo.NodeInfo) *framework.Status {
 	klog.V(3).Infof("filter pod: %v, node: %v", pod.Name, node.Node().Name)
-	if NodeHasGPU(node){
-		if NodeGPUHealth(node){
-			if PodNeedLevel(pod){
-				if !PodFitsLevel(pod,node){
-					return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Low Level")
-				}
-			}
-			if PodNeedMemory(pod){
-				if !PodFitsMemory(pod,node){
-					return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPUNoMemory")
-				}
-			}
-			return framework.NewStatus(framework.Success, "")
+	if ok,msg := filter.CheckGPUHealth(node);ok{
+		if !filter.PodFitsLevel(pod,node){
+				return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Level Not Fit")
 		}
-		return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Unhealthy")
+		if !filter.PodFitsMemory(pod,node){
+			return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Memory Not Fit")
+		}
+		return framework.NewStatus(framework.Success, "")
+	}else {
+		return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+msg)
 	}
-	return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" No GPU")
+
 }
 
 func (y *Yoda) PostFilter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
-	return ParallelCollection(state,nodes,filteredNodesStatuses)
+	return collection.ParallelCollection(state,nodes,filteredNodesStatuses)
 }
+
+func (y *Yoda) Less(podInfo1, podInfo2 *framework.PodInfo) bool{
+	return sort.Less(podInfo1,podInfo2)
+}
+
