@@ -2,7 +2,7 @@
 Yoda is a kubernetes scheduler based on [scheduling-framework](https://github.com/kubernetes/enhancements/blob/master/keps/sig-scheduling/20180409-scheduling-framework.md). By cooperation with [SCV Sniffer](https://github.com/NJUPT-ISL/SCV),
  it is schedules tasks according to GPU metrics.
 
-
+![Status](https://github.com/NJUPT-ISL/Yoda-Scheduler/workflows/Go/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/NJUPT-ISL/Yoda-Scheduler)](https://goreportcard.com/report/github.com/NJUPT-ISL/Yoda-Scheduler)
 
 ### Get Started 
