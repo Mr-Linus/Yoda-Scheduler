@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1258bb9d-36a3-4c05-aaa7-27518f8543e0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/yoda/score/algorithm.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/yoda/score/score.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/yoda/collection/collection.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/collection/collection.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/yoda/filter/filter.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/filter/filter.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/yoda/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/scheduler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,6 +91,10 @@
       <screen x="0" y="23" width="1614" height="1027" />
     </state>
     <state x="288" y="172" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1614.1027/-1920.-154.1920.1057@0.23.1614.1027" timestamp="1579760377331" />
+    <state x="527" y="346" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1580053643028">
+      <screen x="0" y="23" width="1617" height="1027" />
+    </state>
+    <state x="527" y="346" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1617.1027/-1920.-154.1920.1057@0.23.1617.1027" timestamp="1580053643028" />
     <state x="608" y="254" key="RollbackChangesDialog" timestamp="1580035246577">
       <screen x="0" y="23" width="1619" height="1027" />
     </state>
