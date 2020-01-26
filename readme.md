@@ -5,6 +5,8 @@ Yoda is a kubernetes scheduler based on [scheduling-framework](https://github.co
 ![Status](https://github.com/NJUPT-ISL/Yoda-Scheduler/workflows/Go/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/NJUPT-ISL/Yoda-Scheduler)](https://goreportcard.com/report/github.com/NJUPT-ISL/Yoda-Scheduler)
 
+![Yoda](./img/yoda.png)
+
 ### Get Started 
 - Make sure SCV sniffer is deployed in kubernetes cluster: [SCV: Get-Started](https://github.com/NJUPT-ISL/SCV#get-started)
 
