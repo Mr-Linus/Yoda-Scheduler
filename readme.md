@@ -3,7 +3,7 @@ Yoda is a scheduler based on GPU metrics. By cooperation with [SCV Sniffer](http
  It is schedules tasks according to GPU performance.
 
 ### Get Started 
-- Make sure SCV sniffer is deployed in kubernetes cluster: [SCV:Get Started](https://github.com/NJUPT-ISL/SCV#get-started)
+- Make sure SCV sniffer is deployed in kubernetes cluster: [SCV: Get-Started](https://github.com/NJUPT-ISL/SCV#get-started)
 
 - Deploy Yoda Scheduler:
 ```shell
@@ -17,5 +17,10 @@ kubectl get pods -n kube-system
 
 - Deploy a sample pod using Yoda:
 ```shell
+kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/master/deploy/test-deployment.yaml
+```
 
+- Check the sample pod Status:
+```shell
+kubectl get pods 
 ```
