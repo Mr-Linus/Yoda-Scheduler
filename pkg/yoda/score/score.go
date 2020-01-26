@@ -5,12 +5,10 @@ import (
 	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
 )
 
-
-func Score(state *framework.CycleState, node *nodeinfo.NodeInfo) (int64, error){
-	s, err := CalculateCollectScore(state,node)
+func Score(state *framework.CycleState, node *nodeinfo.NodeInfo) (int64, error) {
+	s, err := CalculateCollectScore(state, node)
 	if err != nil {
-		return 0,err
+		return 0, err
 	}
 	return s, nil
 }
-

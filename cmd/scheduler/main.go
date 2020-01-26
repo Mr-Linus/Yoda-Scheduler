@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func main(){
+func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	command := register.Register()
 	logs.InitLogs()
