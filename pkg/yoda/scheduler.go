@@ -57,6 +57,9 @@ func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.
 		if !filter.PodFitsMemory(pod,node){
 			return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Memory Not Fit")
 		}
+		if !filter.PodFitsNumber(pod,node){
+			return framework.NewStatus(framework.Unschedulable,"Node:"+node.Node().Name+" GPU Number Not Fit")
+		}
 		return framework.NewStatus(framework.Success, "")
 	}else {
 		return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+msg)
@@ -65,6 +68,7 @@ func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.
 }
 
 func (y *Yoda) PostFilter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
+	klog.V(3).Infof("collect info for scheduling  pod: %v", pod.Name)
 	return collection.ParallelCollection(state,nodes,filteredNodesStatuses)
 }
 

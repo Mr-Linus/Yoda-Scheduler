@@ -2,8 +2,6 @@ package sort
 
 import framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
 
-
-
 func Less(podInfo1, podInfo2 *framework.PodInfo) bool{
 	return GetPodPriority(podInfo1) > GetPodPriority(podInfo2)
 }
