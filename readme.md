@@ -1,13 +1,17 @@
-## Yoda-Scheduler
-Yoda is a kubernetes scheduler based on [scheduling-framework](https://github.com/kubernetes/enhancements/blob/master/keps/sig-scheduling/20180409-scheduling-framework.md). By cooperation with [SCV Sniffer](https://github.com/NJUPT-ISL/SCV),
- it is schedules tasks according to GPU metrics.
+# Yoda-Scheduler
 
 ![Status](https://github.com/NJUPT-ISL/Yoda-Scheduler/workflows/Go/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/NJUPT-ISL/Yoda-Scheduler)](https://goreportcard.com/report/github.com/NJUPT-ISL/Yoda-Scheduler)
 
 ![Yoda](./img/yoda.png)
+----
 
-### Get Started 
+Yoda is a kubernetes scheduler based on [scheduling-framework](https://github.com/kubernetes/enhancements/blob/master/keps/sig-scheduling/20180409-scheduling-framework.md). By cooperation with [SCV Sniffer](https://github.com/NJUPT-ISL/SCV),
+ it is schedules tasks according to GPU metrics.
+ 
+
+ 
+## Get Started 
 - Make sure SCV sniffer is deployed in kubernetes cluster: [SCV: Get-Started](https://github.com/NJUPT-ISL/SCV#get-started)
 
 - Deploy Yoda Scheduler:
@@ -19,7 +23,7 @@ kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/mast
 ```shell
 kubectl get pods -n kube-system 
 ```
-
+## Deploy a Pod using Yoda
 - Deploy a sample pod using Yoda:
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/master/deploy/test-deployment.yaml
@@ -28,4 +32,17 @@ kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/mast
 - Check the sample pod Status:
 ```shell
 kubectl get pods 
+```
+## How to develop Yoda
+- Compile yoda-scheduler:
+```shell
+make local
+```
+- Build the docker image:
+```shell
+make build
+```
+- Clean the Build file
+```shell
+make clean
 ```
