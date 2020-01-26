@@ -8,21 +8,28 @@ import (
 	"sync"
 )
 
+const Workers int = 4
+
 type Data struct {
-	Value uint
+	Value int64
 }
 
-func (d *Data) Clone() framework.StateData {
-	clone := Data{Value:d.Value}
-	return &clone
+func (s *Data) Clone() framework.StateData {
+	c := &Data{
+		Value: s.Value,
+	}
+	return c
 }
+
+var Sum = []string{"Cores","FreeMemory","Bandwidth","MemoryClock","MemorySum","Number","Memory"}
+
 
 func CollectMaxValue(value string,state *framework.CycleState,nodes []*v1.Node,filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
-	Max := Data{Value:0}
+	Max := Data{Value: 0}
 	for _,n := range nodes{
 		if filteredNodesStatuses[n.GetName()].IsSuccess(){
-			if filter.StrToUInt(n.Labels["scv/"+value]) > Max.Value{
-				Max.Value = filter.StrToUInt(n.Labels["scv/FreeMemory"])
+			if filter.StrToInt64(n.Labels["scv/"+value]) > Max.Value{
+				Max.Value = filter.StrToInt64(n.Labels["scv/FreeMemory"])
 			}
 		}
 	}
@@ -36,22 +43,24 @@ func CollectMaxValue(value string,state *framework.CycleState,nodes []*v1.Node,f
 }
 
 
-func ParallelCollection(state *framework.CycleState,nodes []*v1.Node,filteredNodesStatuses framework.NodeToStatusMap) *framework.Status{
+func ParallelCollection(workers int,state *framework.CycleState,nodes []*v1.Node,filteredNodesStatuses framework.NodeToStatusMap) *framework.Status{
 	var (
 		stop <-chan struct{}
 		mx sync.RWMutex
 		msg = ""
 	)
-	sum := []string{"Cores","FreeMemory","Bandwidth","MemoryClock"}
-	pieces := len(sum)
+	pieces := len(Sum)
 	toProcess := make(chan string, pieces)
-	for _,v := range sum{
+	for _,v := range Sum{
 		toProcess <- v
 	}
 	close(toProcess)
+	if pieces > workers {
+		workers = pieces
+	}
 	wg := sync.WaitGroup{}
-	wg.Add(len(sum))
-	for i := 0;i <= pieces; i++{
+	wg.Add(workers)
+	for i := 0;i <= workers; i++{
 		go func() {
 			defer wg.Done()
 			for value := range toProcess{
