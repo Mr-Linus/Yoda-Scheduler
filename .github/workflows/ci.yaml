@@ -1,0 +1,48 @@
+name: Go
+on: [push]
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Check Docker
+        run: |
+          uname -a
+          sudo apt-get remove docker docker-engine docker.io containerd runc -y
+          sudo apt update -y
+          sudo apt-get install \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            gnupg-agent \
+            software-properties-common -y
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository \
+              "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+              $(lsb_release -cs) \
+              stable"
+          sudo apt-get update -y
+          sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+          docker version
+      - name: Build binary executable file
+        run: |
+          make local
+      - name: Build docker image
+        run: |
+          make build
+      - name: push image
+        env:
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+        run: |
+          echo $password | sudo docker login "registry.cn-hangzhou.aliyuncs.com" -u "$username" --password-stdin
+          make push
+          sudo docker logout
