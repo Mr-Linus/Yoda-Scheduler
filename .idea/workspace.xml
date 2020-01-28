@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1258bb9d-36a3-4c05-aaa7-27518f8543e0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,9 +98,10 @@
       <screen x="0" y="23" width="1619" height="1027" />
     </state>
     <state x="608" y="254" key="RollbackChangesDialog/0.23.1619.1027/-1920.-154.1920.1057@0.23.1619.1027" timestamp="1580035246577" />
-    <state x="343" y="158" key="SettingsEditor" timestamp="1579513943599">
-      <screen x="0" y="23" width="1619" height="1027" />
+    <state x="10" y="103" key="SettingsEditor" timestamp="1580108350439">
+      <screen x="0" y="23" width="1614" height="1027" />
     </state>
+    <state x="10" y="103" key="SettingsEditor/0.23.1614.1027/-1920.-154.1920.1057@0.23.1614.1027" timestamp="1580108350439" />
     <state x="343" y="158" key="SettingsEditor/0.23.1619.1027/-1920.-154.1920.1057@0.23.1619.1027" timestamp="1579513943599" />
     <state x="479" y="250" width="671" height="676" key="search.everywhere.popup" timestamp="1580032870038">
       <screen x="0" y="23" width="1619" height="1027" />
