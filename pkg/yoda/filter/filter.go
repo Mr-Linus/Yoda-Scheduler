@@ -80,12 +80,13 @@ func PodFitsMemory(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
 func PodFitsLevel(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
 	if PodNeedLevel(pod) {
 		if NodeHasLevel(node) {
-			return GetLevel(node.Node().Labels["scv/Level"]) >= GetLevel(pod.Labels["scv/Level"])
+			return GetLevel(node.Node().Labels["scv/Level"]) == GetLevel(pod.Labels["scv/Level"])
 		}
 		return false
 	}
 	return true
 }
+
 
 func PodFitsNumber(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
 	if PodNeedGPUNumber(pod) {

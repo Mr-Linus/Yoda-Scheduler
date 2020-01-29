@@ -37,7 +37,7 @@ func CollectMaxValue(value string, state *framework.CycleState, nodes []*v1.Node
 	}
 	state.Lock()
 	state.Write(framework.StateKey("Max"+value), &Max)
-	state.Lock()
+	state.Unlock()
 	return framework.NewStatus(framework.Success, "")
 }
 
@@ -53,20 +53,19 @@ func ParallelCollection(workers int, state *framework.CycleState, nodes []*v1.No
 		toProcess <- v
 	}
 	close(toProcess)
-	if pieces > workers {
+	if pieces < workers {
 		workers = pieces
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(workers)
-	for i := 0; i <= workers; i++ {
+	for i := 0; i < workers; i++ {
 		go func() {
-			defer wg.Done()
 			for value := range toProcess {
 				select {
 				case <-stop:
 					return
 				default:
-					if re := CollectMaxValue(value, state, nodes, filteredNodesStatuses); re.IsSuccess() {
+					if re := CollectMaxValue(value, state, nodes, filteredNodesStatuses); !re.IsSuccess() {
 						klog.V(3).Infof(re.Message())
 						mx.Lock()
 						msg += re.Message()
@@ -74,6 +73,7 @@ func ParallelCollection(workers int, state *framework.CycleState, nodes []*v1.No
 					}
 				}
 			}
+			wg.Done()
 		}()
 	}
 	wg.Wait()

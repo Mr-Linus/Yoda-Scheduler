@@ -88,6 +88,7 @@ func (y *Yoda) Score(ctx context.Context, state *framework.CycleState, p *v1.Pod
 	if err != nil {
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
 	}
+	klog.V(3).Infof("node : %v yoda-score: %v",nodeName,sc)
 	return sc, framework.NewStatus(framework.Success, "")
 }
 

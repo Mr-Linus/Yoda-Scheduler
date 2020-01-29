@@ -16,6 +16,15 @@ data:
       filter:
         enabled:
         - name: "yoda"
+      queueSort:
+        enabled:
+        - name: "yoda"
+      score:
+        enabled:
+        - name: "yoda"
+      postFilter:
+        enabled:
+        - name: "yoda"
     pluginConfig:
     - name: "yoda"
       args: {"master": "master", "kubeconfig": "kubeconfig"}
@@ -46,7 +55,7 @@ spec:
       containers:
         - name: yoda-scheduler
           image: registry.cn-hangzhou.aliyuncs.com/geekcloud/yoda-scheduler
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           args:
             - yoda-scheduler
             - --config=/scheduler/scheduler-config.yaml

@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1258bb9d-36a3-4c05-aaa7-27518f8543e0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/yoda-scheduler" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deploy/deploy.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/deploy/deploy.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/yoda/collection/collection.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/collection/collection.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/yoda/filter/filter.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/filter/filter.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/yoda/scheduler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/yoda/scheduler.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
