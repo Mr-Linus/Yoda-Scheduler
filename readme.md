@@ -26,8 +26,21 @@ kubectl get pods -n kube-system
 ```
 ## Deploy a Pod using Yoda
 - Deploy a sample pod using Yoda:
-```shell
-kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/master/deploy/test-deployment.yaml
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+  labels:
+    app: test
+spec:
+  schedulerName: yoda-scheduler
+  containers:
+    - image: nginx
+      imagePullPolicy: IfNotPresent
+      name: nginx
+      ports:
+        - containerPort: 80
 ```
 
 - Check the sample pod Status:

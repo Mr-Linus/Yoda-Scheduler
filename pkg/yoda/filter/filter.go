@@ -80,7 +80,7 @@ func PodFitsMemory(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
 func PodFitsLevel(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
 	if PodNeedLevel(pod) {
 		if NodeHasLevel(node) {
-			return GetLevel(node.Node().Labels["scv/Level"]) == GetLevel(pod.Labels["scv/Level"])
+			return node.Node().Labels["scv/Level"] == pod.Labels["scv/Level"]
 		}
 		return false
 	}
@@ -98,18 +98,6 @@ func PodFitsNumber(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
 	return true
 }
 
-func GetLevel(label string) int {
-	var level = 0
-	switch label {
-	case "High":
-		level = 3
-	case "Medium":
-		level = 2
-	case "Low":
-		level = 1
-	}
-	return level
-}
 
 func StrToUInt(str string) uint {
 	if i, e := strconv.Atoi(str); e != nil {
