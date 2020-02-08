@@ -8,7 +8,6 @@ spec:
   schedulerName: yoda-scheduler
   containers:
     - image: nginx
-      imagePullPolicy: IfNotPresent
       name: nginx
       ports:
         - containerPort: 80

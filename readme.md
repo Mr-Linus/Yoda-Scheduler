@@ -10,14 +10,13 @@ Yoda is a kubernetes scheduler based on [scheduling-framework](https://github.co
  it is schedules tasks according to GPU metrics.
  
 
- 
 ## Get Started 
 
 - Make sure kubernetes cluster version is `1.17+` and SCV sniffer is deployed in kubernetes cluster: [SCV: Get-Started](https://github.com/NJUPT-ISL/SCV#get-started)
 
 - Deploy Yoda Scheduler:
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/master/deploy/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/master/deploy/yoda-scheduler.yaml
 ```
 
 - Check the Yoda Scheduler Status:
@@ -25,25 +24,49 @@ kubectl apply -f https://raw.githubusercontent.com/NJUPT-ISL/Yoda-Scheduler/mast
 kubectl get pods -n kube-system 
 ```
 ## Deploy a Pod using Yoda
-- Deploy a sample pod using Yoda:
+- Create a pod which needs 1000MB GPU Memory:
 ```yaml
 apiVersion: v1
 kind: Pod
 metadata:
   name: test
   labels:
-    app: test
+    scv/FreeMemory: "1000"
 spec:
   schedulerName: yoda-scheduler
   containers:
     - image: nginx
-      imagePullPolicy: IfNotPresent
       name: nginx
-      ports:
-        - containerPort: 80
 ```
-
-- Check the sample pod Status:
+- Create a pod which needs 2 GPU:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test2
+  labels:
+    scv/Number: "2"
+spec:
+  schedulerName: yoda-scheduler
+  containers:
+    - image: nginx
+      name: nginx
+```
+- Create a pod that requires a high-performance GPU:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test3
+  labels:
+    scv/Level: "High"
+spec:
+  schedulerName: yoda-scheduler
+  containers:
+    - image: nginx
+      name: nginx
+```
+## Check the sample pod Status:
 ```shell
 kubectl get pods 
 ```
