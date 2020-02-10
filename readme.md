@@ -83,3 +83,6 @@ make build
 ```shell
 make clean
 ```
+
+## Contact us
+![QQ Group](https://github.com/NJUPT-ISL/Breakfast/blob/master/img/qrcode_1581334380545.jpg)
