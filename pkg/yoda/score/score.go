@@ -10,5 +10,6 @@ func Score(state *framework.CycleState, node *nodeinfo.NodeInfo) (int64, error) 
 	if err != nil {
 		return 0, err
 	}
+	s += CalculatePodUseScore(node)
 	return s, nil
 }

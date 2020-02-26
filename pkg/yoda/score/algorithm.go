@@ -18,14 +18,7 @@ var Weights = map[string]int64{
 	"MemoryClock": 2,
 	"MemorySum":   1,
 	"Number":      1,
-	"Memory":      1}
-
-func CalculateSumValue(value string, state *framework.CycleState) int64 {
-	d, err := state.Read(framework.StateKey("Max" + value))
-	if err != nil {
-		klog.V(3).Infof("Error Get CycleState Info: %v", err)
-	}
-	return d.(*collection.Data).Value
+	"Memory":      1,
 }
 
 func CalculateValueScore(value string, state *framework.CycleState, node *nodeinfo.NodeInfo) (int64, error) {
@@ -47,4 +40,16 @@ func CalculateCollectScore(state *framework.CycleState, node *nodeinfo.NodeInfo)
 		score += s * w
 	}
 	return score, nil
+}
+
+func CalculatePodUseScore(node *nodeinfo.NodeInfo) int64 {
+	var score  = filter.StrToInt64(node.Node().GetLabels()["scv/FreeMemory"])
+	var memSum int64 = 0
+	for _, pod := range node.Pods(){
+		if mem,ok := pod.GetLabels()["scv/FreeMemory"];ok{
+			memSum += filter.StrToInt64(mem)
+		}
+	}
+	score -= memSum
+	return score
 }

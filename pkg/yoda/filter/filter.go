@@ -6,7 +6,6 @@ import (
 	"strconv"
 )
 
-//TODO: PodFitsGPUNumber(NodeHasGPUNumber+PodHasGPUNumber)
 
 func CheckGPUHealth(node *nodeinfo.NodeInfo) (bool, string) {
 	var msg = ""
