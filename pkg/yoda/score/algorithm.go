@@ -43,7 +43,7 @@ func CalculateCollectScore(state *framework.CycleState, node *nodeinfo.NodeInfo)
 }
 
 func CalculatePodUseScore(node *nodeinfo.NodeInfo) int64 {
-	var score  = filter.StrToInt64(node.Node().GetLabels()["scv/FreeMemory"])
+	var score  = filter.StrToInt64(node.Node().GetLabels()["scv/Memory"])
 	var memSum int64 = 0
 	for _, pod := range node.Pods(){
 		if mem,ok := pod.GetLabels()["scv/FreeMemory"];ok{
@@ -51,5 +51,9 @@ func CalculatePodUseScore(node *nodeinfo.NodeInfo) int64 {
 		}
 	}
 	score -= memSum
+	//TODO: need to delete
+	if score < 0 {
+		return 0
+	}
 	return score
 }

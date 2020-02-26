@@ -13,10 +13,10 @@ data:
       lockObjectName: yoda-scheduler
       lockObjectNamespace: kube-system
     plugins:
-      filter:
-        enabled:
-        - name: "yoda"
       queueSort:
+        enabled:
+          - name: "yoda"
+      filter:
         enabled:
         - name: "yoda"
       score:

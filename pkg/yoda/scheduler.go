@@ -19,10 +19,11 @@ const (
 )
 
 var (
+	_ framework.QueueSortPlugin  = &Yoda{}
 	_ framework.FilterPlugin     = &Yoda{}
 	_ framework.PostFilterPlugin = &Yoda{}
-	_ framework.QueueSortPlugin  = &Yoda{}
 	_ framework.ScorePlugin      = &Yoda{}
+	_ framework.ScoreExtensions  = &Yoda{}
 )
 
 type Args struct {
@@ -84,25 +85,27 @@ func (y *Yoda) Score(ctx context.Context, state *framework.CycleState, p *v1.Pod
 	if err != nil {
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("getting node %q from Snapshot: %v", nodeName, err))
 	}
-	sc, err := score.Score(state, nodeInfo)
+	s, err := score.Score(state, nodeInfo)
 	if err != nil {
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
 	}
-	klog.V(3).Infof("node : %v yoda-score: %v",nodeName,sc)
-	return sc, framework.NewStatus(framework.Success, "")
+	klog.V(3).Infof("node : %v yoda-score: %v",nodeName,s)
+	return s, framework.NewStatus(framework.Success, "")
 }
 
 func (y *Yoda) NormalizeScore(ctx context.Context, state *framework.CycleState, p *v1.Pod, scores framework.NodeScoreList) *framework.Status {
 	var highest int64 = 0
+	// TODO:Set to > 0
 	for _, nodeScore := range scores {
 		if nodeScore.Score > highest {
 			highest = nodeScore.Score
 		}
 	}
+	// Set Range to [0-100]
 	for i, nodeScore := range scores {
 		scores[i].Score = nodeScore.Score * framework.MaxNodeScore / highest
 	}
-	return nil
+	return framework.NewStatus(framework.Success, "")
 }
 
 func (y *Yoda) ScoreExtensions() framework.ScoreExtensions {
