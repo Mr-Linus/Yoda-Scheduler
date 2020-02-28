@@ -37,7 +37,7 @@ func CollectMaxValue(value string, state *framework.CycleState, nodes []*v1.Node
 	}
 	state.Lock()
 	state.Write(framework.StateKey("Max"+value), &Max)
-	state.Unlock()
+	defer state.Unlock()
 	return framework.NewStatus(framework.Success, "")
 }
 
