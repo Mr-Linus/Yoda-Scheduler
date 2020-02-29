@@ -3,6 +3,7 @@ package score
 import (
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/collection"
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
 	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
@@ -47,13 +48,11 @@ func CalculatePodUseScore(node *nodeinfo.NodeInfo) int64 {
 	var memSum int64 = 0
 	for _, pod := range node.Pods(){
 		if mem,ok := pod.GetLabels()["scv/FreeMemory"];ok{
-			memSum += filter.StrToInt64(mem)
+			if pod.Status.Phase != v1.PodSucceeded{
+				memSum += filter.StrToInt64(mem)
+			}
 		}
 	}
 	score -= memSum
-	//TODO: need to delete
-	if score < 0 {
-		return 0
-	}
 	return score
 }
