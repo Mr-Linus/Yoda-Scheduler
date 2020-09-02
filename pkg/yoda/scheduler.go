@@ -3,15 +3,22 @@ package yoda
 import (
 	"context"
 	"fmt"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/collection"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/score"
-	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/sort"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/clientcmd"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog"
 	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
 	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	scv "github.com/NJUPT-ISL/SCV/api/v1"
+
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/collection"
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/score"
+	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/sort"
 )
 
 const (
@@ -24,6 +31,8 @@ var (
 	_ framework.PostFilterPlugin = &Yoda{}
 	_ framework.ScorePlugin      = &Yoda{}
 	_ framework.ScoreExtensions  = &Yoda{}
+
+	scheme = runtime.NewScheme()
 )
 
 type Args struct {
@@ -32,8 +41,9 @@ type Args struct {
 }
 
 type Yoda struct {
-	args   *Args
-	handle framework.FrameworkHandle
+	args      *Args
+	handle    framework.FrameworkHandle
+	scvClient client.Client
 }
 
 func (y *Yoda) Name() string {
@@ -47,28 +57,28 @@ func New(configuration *runtime.Unknown, f framework.FrameworkHandle) (framework
 	}
 	klog.V(3).Infof("get plugin config args: %+v", args)
 	return &Yoda{
-		args:   args,
-		handle: f,
+		args:      args,
+		handle:    f,
+		scvClient: NewScvClient(),
 	}, nil
 }
 
 func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, node *nodeinfo.NodeInfo) *framework.Status {
 	klog.V(3).Infof("filter pod: %v, node: %v", pod.Name, node.Node().Name)
-	if ok, msg := filter.CheckGPUHealth(node); ok {
-		if !filter.PodFitsLevel(pod, node) {
-			return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Level Not Fit")
-		}
-		if !filter.PodFitsMemory(pod, node) {
-			return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Memory Not Fit")
-		}
-		if !filter.PodFitsNumber(pod, node) {
-			return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" GPU Number Not Fit")
-		}
-		return framework.NewStatus(framework.Success, "")
-	} else {
-		return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+msg)
-	}
 
+	currentScv := &scv.Scv{}
+	err := y.scvClient.Get(context.TODO(), types.NamespacedName{Name: node.Node().GetName()}, currentScv)
+	if err != nil {
+		klog.Errorf("Get SCV Error: %v", err)
+	}
+	klog.V(3).Infof("Get Scv: %v", currentScv.Status.CardList)
+
+	if ok, number := filter.PodFitsNumber(pod, currentScv); ok {
+		if filter.PodFitsMemory(number, pod, currentScv) && filter.PodFitsClock(number, pod, currentScv) {
+			framework.NewStatus(framework.Success, "")
+		}
+	}
+	return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name)
 }
 
 func (y *Yoda) PostFilter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
@@ -89,14 +99,14 @@ func (y *Yoda) Score(ctx context.Context, state *framework.CycleState, p *v1.Pod
 	if err != nil {
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
 	}
-	klog.V(3).Infof("node : %v yoda-score: %v",nodeName,s)
+	klog.V(3).Infof("node : %v yoda-score: %v", nodeName, s)
 	return s, framework.NewStatus(framework.Success, "")
 }
 
 func (y *Yoda) NormalizeScore(ctx context.Context, state *framework.CycleState, p *v1.Pod, scores framework.NodeScoreList) *framework.Status {
 	var (
 		highest int64 = 0
-		lowest = scores[0].Score
+		lowest        = scores[0].Score
 	)
 	for _, nodeScore := range scores {
 		if nodeScore.Score < lowest {
@@ -122,4 +132,25 @@ func (y *Yoda) NormalizeScore(ctx context.Context, state *framework.CycleState, 
 
 func (y *Yoda) ScoreExtensions() framework.ScoreExtensions {
 	return y
+}
+
+func NewScvClient() client.Client {
+	err := scv.AddToScheme(scheme)
+	if err != nil {
+		klog.Errorf("Add SCV CRD to Scheme Error: %v", err)
+		return nil
+	}
+	config, err := clientcmd.BuildConfigFromFlags("", "")
+	if err != nil {
+		klog.Errorf("Get Kubernetes Config Error: %v", err)
+		return nil
+	}
+	c, err := client.New(config, client.Options{
+		Scheme: scheme,
+	})
+	if err != nil {
+		klog.Errorf("New Client Error: %v", err)
+		return nil
+	}
+	return c
 }

@@ -44,11 +44,11 @@ func CalculateCollectScore(state *framework.CycleState, node *nodeinfo.NodeInfo)
 }
 
 func CalculatePodUseScore(node *nodeinfo.NodeInfo) int64 {
-	var score  = filter.StrToInt64(node.Node().GetLabels()["scv/Memory"])
+	var score = filter.StrToInt64(node.Node().GetLabels()["scv/Memory"])
 	var memSum int64 = 0
-	for _, pod := range node.Pods(){
-		if mem,ok := pod.GetLabels()["scv/FreeMemory"];ok{
-			if pod.Status.Phase != v1.PodSucceeded{
+	for _, pod := range node.Pods() {
+		if mem, ok := pod.GetLabels()["scv/FreeMemory"]; ok {
+			if pod.Status.Phase != v1.PodSucceeded {
 				memSum += filter.StrToInt64(mem)
 			}
 		}
