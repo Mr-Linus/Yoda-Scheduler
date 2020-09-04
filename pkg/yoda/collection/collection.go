@@ -1,17 +1,24 @@
 package collection
 
 import (
+	scv "github.com/NJUPT-ISL/SCV/api/v1"
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/klog"
 	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
-	"sync"
 )
 
-const Workers int = 4
-
 type Data struct {
-	Value int64
+	Value MaxValue
+}
+
+type MaxValue struct {
+	MaxBandwidth      uint
+	MaxClock          uint
+	MaxCore           uint
+	MaxFreeMemory     uint64
+	MaxPower          uint
+	MaxTotalMemory    uint64
+	MaxTotalMemorySum uint64
 }
 
 func (s *Data) Clone() framework.StateData {
@@ -21,64 +28,56 @@ func (s *Data) Clone() framework.StateData {
 	return c
 }
 
-var Sum = []string{"Cores", "FreeMemory", "Bandwidth", "MemoryClock", "MemorySum", "Number", "Memory"}
-
-func CollectMaxValue(value string, state *framework.CycleState, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
-	Max := Data{Value: 0}
-	for _, n := range nodes {
-		if filteredNodesStatuses[n.GetName()].IsSuccess() {
-			if filter.StrToInt64(n.Labels["scv/"+value]) > Max.Value {
-				Max.Value = filter.StrToInt64(n.Labels["scv/FreeMemory"])
+func CollectMaxValues(state *framework.CycleState, pod *v1.Pod, scvList scv.ScvList) *framework.Status {
+	data := Data{Value: MaxValue{
+		MaxBandwidth:      1,
+		MaxClock:          1,
+		MaxCore:           1,
+		MaxFreeMemory:     1,
+		MaxPower:          1,
+		MaxTotalMemory:    1,
+		MaxTotalMemorySum: 1,
+	}}
+	for _, item := range scvList.Items {
+		s := item.DeepCopy()
+		if ok, number := filter.PodFitsNumber(pod, s); ok {
+			isFitsMemory, memory := filter.PodFitsMemory(number, pod, s)
+			isFitsClock, clock := filter.PodFitsClock(number, pod, s)
+			if isFitsClock && isFitsMemory {
+				for _, card := range s.Status.CardList {
+					if card.FreeMemory >= memory && card.Clock >= clock {
+						ProcessMaxValueWithCard(card, &data)
+					}
+				}
 			}
 		}
-	}
-	if Max.Value == 0 {
-		return framework.NewStatus(framework.Error, " The max "+value+" of the nodes is 0")
+		if s.Status.TotalMemorySum > data.Value.MaxTotalMemorySum {
+			data.Value.MaxTotalMemorySum = s.Status.TotalMemorySum
+		}
 	}
 	state.Lock()
-	state.Write(framework.StateKey("Max"+value), &Max)
+	state.Write("Max", &data)
 	defer state.Unlock()
 	return framework.NewStatus(framework.Success, "")
 }
 
-func ParallelCollection(workers int, state *framework.CycleState, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
-	var (
-		stop <-chan struct{}
-		mx   sync.RWMutex
-		msg  = ""
-	)
-	pieces := len(Sum)
-	toProcess := make(chan string, pieces)
-	for _, v := range Sum {
-		toProcess <- v
+func ProcessMaxValueWithCard(card scv.Card, data *Data) {
+	if card.FreeMemory > data.Value.MaxFreeMemory {
+		data.Value.MaxFreeMemory = card.FreeMemory
 	}
-	close(toProcess)
-	if pieces < workers {
-		workers = pieces
+	if card.Clock > data.Value.MaxClock {
+		data.Value.MaxClock = card.Clock
 	}
-	wg := sync.WaitGroup{}
-	wg.Add(workers)
-	for i := 0; i < workers; i++ {
-		go func() {
-			for value := range toProcess {
-				select {
-				case <-stop:
-					return
-				default:
-					if re := CollectMaxValue(value, state, nodes, filteredNodesStatuses); !re.IsSuccess() {
-						klog.V(3).Infof(re.Message())
-						mx.Lock()
-						msg += re.Message()
-						mx.Unlock()
-					}
-				}
-			}
-			wg.Done()
-		}()
+	if card.TotalMemory > data.Value.MaxTotalMemory {
+		data.Value.MaxTotalMemory = card.TotalMemory
 	}
-	wg.Wait()
-	if msg != "" {
-		return framework.NewStatus(framework.Error, msg)
+	if card.Bandwidth > data.Value.MaxBandwidth {
+		data.Value.MaxBandwidth = card.Bandwidth
 	}
-	return framework.NewStatus(framework.Success, "")
+	if card.Core > data.Value.MaxCore {
+		data.Value.MaxCore = card.Core
+	}
+	if card.Power > data.Value.MaxPower {
+		data.Value.MaxPower = card.Power
+	}
 }

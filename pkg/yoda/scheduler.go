@@ -3,11 +3,11 @@ package yoda
 import (
 	"context"
 	"fmt"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/tools/clientcmd"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog"
 	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
 	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
@@ -67,23 +67,29 @@ func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.
 	klog.V(3).Infof("filter pod: %v, node: %v", pod.Name, node.Node().Name)
 
 	currentScv := &scv.Scv{}
-	err := y.scvClient.Get(context.TODO(), types.NamespacedName{Name: node.Node().GetName()}, currentScv)
+	err := y.scvClient.Get(ctx, types.NamespacedName{Name: node.Node().GetName()}, currentScv)
 	if err != nil {
 		klog.Errorf("Get SCV Error: %v", err)
+		return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" "+err.Error())
 	}
-	klog.V(3).Infof("Get Scv: %v", currentScv.Status.CardList)
-
 	if ok, number := filter.PodFitsNumber(pod, currentScv); ok {
-		if filter.PodFitsMemory(number, pod, currentScv) && filter.PodFitsClock(number, pod, currentScv) {
-			framework.NewStatus(framework.Success, "")
+		isFitsMemory, _ := filter.PodFitsMemory(number, pod, currentScv)
+		isFitsClock, _ := filter.PodFitsClock(number, pod, currentScv)
+		if isFitsMemory && isFitsClock {
+			return framework.NewStatus(framework.Success, "")
 		}
 	}
 	return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name)
 }
 
 func (y *Yoda) PostFilter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
-	klog.V(3).Infof("collect info for scheduling  pod: %v", pod.Name)
-	return collection.ParallelCollection(collection.Workers, state, nodes, filteredNodesStatuses)
+	klog.V(3).Infof("collect info for scheduling pod: %v", pod.Name)
+	scvList := scv.ScvList{}
+	if err := y.scvClient.List(ctx, &scvList); err != nil {
+		klog.Errorf("Get Scv List Error: %v", err)
+		return framework.NewStatus(framework.Error, err.Error())
+	}
+	return collection.CollectMaxValues(state, pod, scvList)
 }
 
 func (y *Yoda) Less(podInfo1, podInfo2 *framework.PodInfo) bool {
@@ -91,38 +97,38 @@ func (y *Yoda) Less(podInfo1, podInfo2 *framework.PodInfo) bool {
 }
 
 func (y *Yoda) Score(ctx context.Context, state *framework.CycleState, p *v1.Pod, nodeName string) (int64, *framework.Status) {
+	// Get Node Info
 	nodeInfo, err := y.handle.SnapshotSharedLister().NodeInfos().Get(nodeName)
 	if err != nil {
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("getting node %q from Snapshot: %v", nodeName, err))
 	}
-	s, err := score.Score(state, nodeInfo)
+
+	// Get Scv Info
+	currentScv := &scv.Scv{}
+	err = y.scvClient.Get(ctx, types.NamespacedName{Name: nodeName}, currentScv)
+	if err != nil {
+		klog.Errorf("Get SCV Error: %v", err)
+		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
+	}
+
+	uNodeScore, err := score.CalculateScore(currentScv, state, p, nodeInfo)
 	if err != nil {
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
 	}
-	klog.V(3).Infof("node : %v yoda-score: %v", nodeName, s)
-	return s, framework.NewStatus(framework.Success, "")
+	nodeScore := filter.Uint64ToInt64(uNodeScore)
+	klog.V(3).Infof("node : %v yoda-score: %v", nodeName, nodeScore)
+	return nodeScore, framework.NewStatus(framework.Success, "")
 }
 
 func (y *Yoda) NormalizeScore(ctx context.Context, state *framework.CycleState, p *v1.Pod, scores framework.NodeScoreList) *framework.Status {
-	var (
-		highest int64 = 0
-		lowest        = scores[0].Score
-	)
-	for _, nodeScore := range scores {
-		if nodeScore.Score < lowest {
-			lowest = nodeScore.Score
-		}
-	}
-	if lowest < 0 {
-		for i := range scores {
-			scores[i].Score -= lowest
-		}
-	}
+	highest := int64(0)
+
 	for _, nodeScore := range scores {
 		if nodeScore.Score > highest {
 			highest = nodeScore.Score
 		}
 	}
+
 	// Set Range to [0-100]
 	for i, nodeScore := range scores {
 		scores[i].Score = nodeScore.Score * framework.MaxNodeScore / highest

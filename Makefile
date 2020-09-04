@@ -7,7 +7,7 @@ build:
 	docker build --no-cache . -t registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:2.0
 
 push:
-	docker push registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler
+	docker push registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:2.0
 
 format:
 	sudo gofmt -l -w .

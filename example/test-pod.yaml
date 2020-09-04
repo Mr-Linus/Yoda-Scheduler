@@ -5,7 +5,7 @@ metadata:
   labels:
     app: test
 spec:
-  schedulerName: yoda-scheduler
+  schedulerName: yoda-scheduler2
   containers:
     - image: nginx
       name: nginx
