@@ -38,11 +38,3 @@ jobs:
       - name: Build docker image
         run: |
           make build
-      - name: push image
-        env:
-          username: ${{ secrets.username }}
-          password: ${{ secrets.password }}
-        run: |
-          echo $password | sudo docker login "registry.cn-hangzhou.aliyuncs.com" -u "$username" --password-stdin
-          make push
-          sudo docker logout
