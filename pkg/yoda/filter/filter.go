@@ -1,108 +1,75 @@
 package filter
 
 import (
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
 	"strconv"
+
+	v1 "k8s.io/api/core/v1"
+
+	scv "github.com/NJUPT-ISL/SCV/api/v1"
 )
 
+func PodFitsNumber(pod *v1.Pod, scv *scv.Scv) (bool, uint) {
+	if number, ok := pod.GetLabels()["scv/number"]; ok {
+		return strToUint(number) <= scv.Status.CardNumber, strToUint(number)
+	}
+	return scv.Status.CardNumber > 0, 1
+}
 
-func CheckGPUHealth(node *nodeinfo.NodeInfo) (bool, string) {
-	var msg = ""
-	if NodeHasGPU(node) {
-		if NodeGPUHealth(node) {
-			return true, msg
+func PodFitsMemory(number uint, pod *v1.Pod, scv *scv.Scv) (bool, uint64) {
+	if memory, ok := pod.GetLabels()["scv/memory"]; ok {
+		fitsCard := uint(0)
+		m := StrToUint64(memory)
+		for _, card := range scv.Status.CardList {
+			if CardFitsMemory(m, card) {
+				fitsCard++
+			}
 		}
-		return false, "GPU Unhealthy"
-	}
-	return false, "No GPU"
-}
-
-func NodeHasGPUNumber(node *nodeinfo.NodeInfo) bool {
-	_, ok := node.Node().Labels["scv/Number"]
-	return ok
-}
-
-func NodeHasGPU(node *nodeinfo.NodeInfo) bool {
-	if _, ok := node.Node().Labels["scv/Gpu"]; ok {
-		if node.Node().Labels["scv/Gpu"] == "True" {
-			return true
+		if fitsCard >= number {
+			return true, m
 		}
+		return false, m
 	}
-	return false
+	return true, 0
 }
 
-func NodeHasLevel(node *nodeinfo.NodeInfo) bool {
-	_, ok := node.Node().Labels["scv/Level"]
-	return ok
-}
-
-func NodeHasFreeMemory(node *nodeinfo.NodeInfo) bool {
-	_, ok := node.Node().Labels["scv/FreeMemory"]
-	return ok
-}
-
-func NodeGPUHealth(node *nodeinfo.NodeInfo) bool {
-	if node.Node().Labels["scv/Health"] == "Healthy" {
-		return true
-	}
-	return false
-}
-
-func PodNeedLevel(pod *v1.Pod) bool {
-	if _, ok := pod.Labels["scv/Level"]; ok {
-		return true
-	}
-	return false
-}
-
-func PodNeedMemory(pod *v1.Pod) bool {
-	_, ok := pod.Labels["scv/FreeMemory"]
-	return ok
-}
-
-func PodNeedGPUNumber(pod *v1.Pod) bool {
-	_, ok := pod.Labels["scv/Number"]
-	return ok
-}
-
-func PodFitsMemory(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
-	if PodNeedMemory(pod) {
-		if NodeHasFreeMemory(node) {
-			return StrToUInt(node.Node().Labels["scv/FreeMemory"]) >= StrToUInt(pod.Labels["scv/FreeMemory"])
+func PodFitsClock(number uint, pod *v1.Pod, scv *scv.Scv) (bool, uint) {
+	if clock, ok := pod.GetLabels()["scv/clock"]; ok {
+		fitsCard := uint(0)
+		c := strToUint(clock)
+		for _, card := range scv.Status.CardList {
+			if CardFitsClock(c, card) {
+				fitsCard++
+			}
 		}
-		return false
-	}
-	return true
-}
-
-func PodFitsLevel(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
-	if PodNeedLevel(pod) {
-		if NodeHasLevel(node) {
-			return node.Node().Labels["scv/Level"] == pod.Labels["scv/Level"]
+		if fitsCard >= number {
+			return true, c
 		}
-		return false
+		return false, c
 	}
-	return true
+	return true, 0
 }
 
-
-func PodFitsNumber(pod *v1.Pod, node *nodeinfo.NodeInfo) bool {
-	if PodNeedGPUNumber(pod) {
-		if NodeHasGPUNumber(node) {
-			return StrToUInt(node.Node().Labels["scv/Number"]) >= StrToUInt(pod.Labels["scv/Number"])
-		}
-		return false
-	}
-	return true
+func CardFitsMemory(memory uint64, card scv.Card) bool {
+	return card.Health == "Healthy" && card.FreeMemory >= memory
 }
 
+func CardFitsClock(clock uint, card scv.Card) bool {
+	return card.Health == "Healthy" && card.Clock == clock
+}
 
-func StrToUInt(str string) uint {
+func strToUint(str string) uint {
 	if i, e := strconv.Atoi(str); e != nil {
 		return 0
 	} else {
 		return uint(i)
+	}
+}
+
+func StrToUint64(str string) uint64 {
+	if i, e := strconv.Atoi(str); e != nil {
+		return 0
+	} else {
+		return uint64(i)
 	}
 }
 
@@ -112,4 +79,8 @@ func StrToInt64(str string) int64 {
 	} else {
 		return int64(i)
 	}
+}
+
+func Uint64ToInt64(intNum uint64) int64 {
+	return StrToInt64(strconv.FormatUint(intNum, 10))
 }
