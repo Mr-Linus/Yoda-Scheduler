@@ -133,6 +133,10 @@ func (y *Yoda) NormalizeScore(ctx context.Context, state *framework.CycleState, 
 		}
 	}
 
+	if highest == lowest {
+		lowest --
+	}
+
 	// Set Range to [0-100]
 	for i, nodeScore := range scores {
 		scores[i].Score = (nodeScore.Score - lowest) * framework.MaxNodeScore / (highest - lowest)
