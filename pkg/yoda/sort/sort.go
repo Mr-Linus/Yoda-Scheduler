@@ -10,7 +10,7 @@ func Less(podInfo1, podInfo2 *framework.PodInfo) bool {
 }
 
 func GetPodPriority(podInfo *framework.PodInfo) int {
-	if p, ok := podInfo.Pod.Labels["scv/Priority"]; ok {
+	if p, ok := podInfo.Pod.Labels["scv/priority"]; ok {
 		pri, _ := strconv.Atoi(p)
 		return pri
 	}

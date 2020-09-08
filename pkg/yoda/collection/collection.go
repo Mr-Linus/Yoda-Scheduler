@@ -18,7 +18,6 @@ type MaxValue struct {
 	MaxFreeMemory     uint64
 	MaxPower          uint
 	MaxTotalMemory    uint64
-	MaxTotalMemorySum uint64
 }
 
 func (s *Data) Clone() framework.StateData {
@@ -36,7 +35,6 @@ func CollectMaxValues(state *framework.CycleState, pod *v1.Pod, scvList scv.ScvL
 		MaxFreeMemory:     1,
 		MaxPower:          1,
 		MaxTotalMemory:    1,
-		MaxTotalMemorySum: 1,
 	}}
 	for _, item := range scvList.Items {
 		s := item.DeepCopy()
@@ -50,9 +48,6 @@ func CollectMaxValues(state *framework.CycleState, pod *v1.Pod, scvList scv.ScvL
 					}
 				}
 			}
-		}
-		if s.Status.TotalMemorySum > data.Value.MaxTotalMemorySum {
-			data.Value.MaxTotalMemorySum = s.Status.TotalMemorySum
 		}
 	}
 	state.Lock()

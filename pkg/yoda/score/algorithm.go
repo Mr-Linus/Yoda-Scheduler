@@ -36,7 +36,7 @@ func CalculateScore(s *scv.Scv, state *framework.CycleState, pod *v1.Pod, info *
 	if !ok {
 		return 0, errors.New("The Type is not Data ")
 	}
-	return CalculateBasicScore(data.Value, s, pod) + CalculateAllocateScore(data.Value, info, s) + CalculateActualScore(s), nil
+	return CalculateBasicScore(data.Value, s, pod) + CalculateAllocateScore(info, s) + CalculateActualScore(s), nil
 }
 
 func CalculateBasicScore(value collection.MaxValue, scv *scv.Scv, pod *v1.Pod) uint64 {
@@ -72,7 +72,7 @@ func CalculateActualScore(scv *scv.Scv) uint64 {
 	return (scv.Status.FreeMemorySum * 100 / scv.Status.TotalMemorySum) * ActualWeight
 }
 
-func CalculateAllocateScore(value collection.MaxValue, info *nodeinfo.NodeInfo, scv *scv.Scv) uint64 {
+func CalculateAllocateScore(info *nodeinfo.NodeInfo, scv *scv.Scv) uint64 {
 	allocateMemorySum := uint64(0)
 	for _, pod := range info.Pods() {
 		if mem, ok := pod.GetLabels()["scv/memory"]; ok {
@@ -84,5 +84,5 @@ func CalculateAllocateScore(value collection.MaxValue, info *nodeinfo.NodeInfo, 
 		return 0
 	}
 
-	return (scv.Status.TotalMemorySum - allocateMemorySum) * 100 / value.MaxTotalMemorySum * AllocateWeight
+	return (scv.Status.TotalMemorySum - allocateMemorySum) * 100 / scv.Status.TotalMemorySum * AllocateWeight
 }
