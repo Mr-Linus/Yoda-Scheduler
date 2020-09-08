@@ -31,7 +31,7 @@ kind: Pod
 metadata:
   name: test
   labels:
-    scv/FreeMemory: "1000"
+    scv/memory: "1000"
 spec:
   schedulerName: yoda-scheduler
   containers:
@@ -45,7 +45,7 @@ kind: Pod
 metadata:
   name: test2
   labels:
-    scv/Number: "2"
+    scv/number: "2"
 spec:
   schedulerName: yoda-scheduler
   containers:
@@ -59,7 +59,8 @@ kind: Pod
 metadata:
   name: test3
   labels:
-    scv/Level: "High"
+    scv/clock: "5705"
+    scv/memory: "8000"
 spec:
   schedulerName: yoda-scheduler
   containers:
