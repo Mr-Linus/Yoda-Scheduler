@@ -120,29 +120,28 @@ func (y *Yoda) Score(ctx context.Context, state *framework.CycleState, p *v1.Pod
 }
 
 func (y *Yoda) NormalizeScore(ctx context.Context, state *framework.CycleState, p *v1.Pod, scores framework.NodeScoreList) *framework.Status {
-	var (
-		highest int64 = 0
-		lowest        = scores[0].Score
-	)
+	var highest  int64  = 0
+
 	for _, nodeScore := range scores {
-		if nodeScore.Score < lowest {
-			lowest = nodeScore.Score
-		}
 		if nodeScore.Score > highest {
 			highest = nodeScore.Score
 		}
 	}
 
-	if highest == lowest {
-		lowest --
-	}
-
 	// Set Range to [0-100]
-	for i, nodeScore := range scores {
-		scores[i].Score = (nodeScore.Score - lowest) * framework.MaxNodeScore / (highest - lowest)
+	for i := range scores {
 		klog.V(3).Infof("node: %v, final Score: %v", scores[i].Name, scores[i].Score)
 	}
-	return framework.NewStatus(framework.Success, "")
+
+	for i := range scores {
+		if scores[i].Score != highest {
+			scores[i].Score = 0
+		} else {
+			scores[i].Score = 100
+		}
+	}
+
+	return nil
 }
 
 func (y *Yoda) ScoreExtensions() framework.ScoreExtensions {
