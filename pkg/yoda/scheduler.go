@@ -7,11 +7,11 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog"
 	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
 	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 
 	scv "github.com/NJUPT-ISL/SCV/api/v1"
 
@@ -43,7 +43,7 @@ type Args struct {
 type Yoda struct {
 	args      *Args
 	handle    framework.FrameworkHandle
-	scvClient client.Client
+    cache     cache.Cache
 }
 
 func (y *Yoda) Name() string {
@@ -56,18 +56,43 @@ func New(configuration *runtime.Unknown, f framework.FrameworkHandle) (framework
 		return nil, err
 	}
 	klog.V(3).Infof("get plugin config args: %+v", args)
+
+	if err := scv.AddToScheme(scheme);err != nil{
+		klog.Error(err)
+		return nil, err
+	}
+
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+		Scheme:             scheme,
+		MetricsBindAddress: "",
+		LeaderElection:     false,
+		Port:               9443,
+	})
+	if err != nil{
+		klog.Error(err)
+		return nil, err
+	}
+	go func() {
+		if err = mgr.Start(ctrl.SetupSignalHandler()); err != nil{
+			klog.Error(err)
+			panic(err)
+		}
+	}()
+
 	return &Yoda{
-		args:      args,
-		handle:    f,
-		scvClient: NewScvClient(),
+		args:        args,
+		handle:      f,
+		cache:    mgr.GetCache(),
 	}, nil
+
+
 }
 
 func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, node *nodeinfo.NodeInfo) *framework.Status {
 	klog.V(3).Infof("filter pod: %v, node: %v", pod.Name, node.Node().Name)
 
 	currentScv := &scv.Scv{}
-	err := y.scvClient.Get(ctx, types.NamespacedName{Name: node.Node().GetName()}, currentScv)
+	err := y.cache.Get(ctx, types.NamespacedName{Name: node.Node().GetName()}, currentScv)
 	if err != nil {
 		klog.Errorf("Get SCV Error: %v", err)
 		return framework.NewStatus(framework.Unschedulable, "Node:"+node.Node().Name+" "+err.Error())
@@ -85,7 +110,7 @@ func (y *Yoda) Filter(ctx context.Context, state *framework.CycleState, pod *v1.
 func (y *Yoda) PostFilter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*v1.Node, filteredNodesStatuses framework.NodeToStatusMap) *framework.Status {
 	klog.V(3).Infof("collect info for scheduling pod: %v", pod.Name)
 	scvList := scv.ScvList{}
-	if err := y.scvClient.List(ctx, &scvList); err != nil {
+	if err := y.cache.List(ctx, &scvList); err != nil {
 		klog.Errorf("Get Scv List Error: %v", err)
 		return framework.NewStatus(framework.Error, err.Error())
 	}
@@ -105,7 +130,7 @@ func (y *Yoda) Score(ctx context.Context, state *framework.CycleState, p *v1.Pod
 
 	// Get Scv Info
 	currentScv := &scv.Scv{}
-	err = y.scvClient.Get(ctx, types.NamespacedName{Name: nodeName}, currentScv)
+	err = y.cache.Get(ctx, types.NamespacedName{Name: nodeName}, currentScv)
 	if err != nil {
 		klog.Errorf("Get SCV Error: %v", err)
 		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
@@ -146,25 +171,4 @@ func (y *Yoda) NormalizeScore(ctx context.Context, state *framework.CycleState, 
 
 func (y *Yoda) ScoreExtensions() framework.ScoreExtensions {
 	return y
-}
-
-func NewScvClient() client.Client {
-	err := scv.AddToScheme(scheme)
-	if err != nil {
-		klog.Errorf("Add SCV CRD to Scheme Error: %v", err)
-		return nil
-	}
-	config, err := clientcmd.BuildConfigFromFlags("", "")
-	if err != nil {
-		klog.Errorf("Get Kubernetes Config Error: %v", err)
-		return nil
-	}
-	c, err := client.New(config, client.Options{
-		Scheme: scheme,
-	})
-	if err != nil {
-		klog.Errorf("New Client Error: %v", err)
-		return nil
-	}
-	return c
 }
