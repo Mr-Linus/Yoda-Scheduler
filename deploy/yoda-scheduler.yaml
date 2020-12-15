@@ -55,7 +55,7 @@ spec:
             name: scheduler-config2
       containers:
         - name: yoda-scheduler
-          image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:2.0
+          image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:3.0
           imagePullPolicy: Always
           args:
             - yoda-scheduler
