@@ -5,29 +5,30 @@ metadata:
   namespace: kube-system
 data:
   scheduler-config.yaml: |
-    apiVersion: kubescheduler.config.k8s.io/v1alpha1
+    apiVersion: kubescheduler.config.k8s.io/v1beta1
     kind: KubeSchedulerConfiguration
-    schedulerName: yoda-scheduler2
     leaderElection:
       leaderElect: true
-      lockObjectName: yoda-scheduler2
-      lockObjectNamespace: kube-system
-    plugins:
-      queueSort:
-        enabled:
-          - name: "yoda"
-      filter:
-        enabled:
-        - name: "yoda"
-      score:
-        enabled:
-        - name: "yoda"
-      postFilter:
-        enabled:
-        - name: "yoda"
-    pluginConfig:
-    - name: "yoda"
-      args: {"master": "master", "kubeconfig": "kubeconfig"}
+      leaseDuration: 15s
+      renewDeadline: 10s
+      resourceLock: leases
+      resourceName: yoda-scheduler
+      resourceNamespace: kube-system
+      retryPeriod: 2s
+    percentageOfNodesToScore: 0
+    podInitialBackoffSeconds: 1
+    podMaxBackoffSeconds: 10
+    profiles:
+      - plugins:
+          filter:
+            enabled:
+              - name: yoda
+                weight: 0
+          score:
+            enabled:
+              - name: yoda
+                weight: 300
+        schedulerName: yoda-scheduler2
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -54,7 +55,7 @@ spec:
             name: scheduler-config2
       containers:
         - name: yoda-scheduler
-          image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:2.0
+          image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:3.0
           imagePullPolicy: Always
           args:
             - yoda-scheduler

@@ -4,7 +4,7 @@ import (
 	scv "github.com/NJUPT-ISL/SCV/api/v1"
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
 	v1 "k8s.io/api/core/v1"
-	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
+	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
 type Data struct {
@@ -12,12 +12,12 @@ type Data struct {
 }
 
 type MaxValue struct {
-	MaxBandwidth      uint
-	MaxClock          uint
-	MaxCore           uint
-	MaxFreeMemory     uint64
-	MaxPower          uint
-	MaxTotalMemory    uint64
+	MaxBandwidth   uint
+	MaxClock       uint
+	MaxCore        uint
+	MaxFreeMemory  uint64
+	MaxPower       uint
+	MaxTotalMemory uint64
 }
 
 func (s *Data) Clone() framework.StateData {
@@ -29,12 +29,12 @@ func (s *Data) Clone() framework.StateData {
 
 func CollectMaxValues(state *framework.CycleState, pod *v1.Pod, scvList scv.ScvList) *framework.Status {
 	data := Data{Value: MaxValue{
-		MaxBandwidth:      1,
-		MaxClock:          1,
-		MaxCore:           1,
-		MaxFreeMemory:     1,
-		MaxPower:          1,
-		MaxTotalMemory:    1,
+		MaxBandwidth:   1,
+		MaxClock:       1,
+		MaxCore:        1,
+		MaxFreeMemory:  1,
+		MaxPower:       1,
+		MaxTotalMemory: 1,
 	}}
 	for _, item := range scvList.Items {
 		s := item.DeepCopy()
