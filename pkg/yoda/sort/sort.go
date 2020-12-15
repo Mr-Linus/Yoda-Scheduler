@@ -1,15 +1,15 @@
 package sort
 
 import (
-	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
+	"k8s.io/kubernetes/pkg/scheduler/framework"
 	"strconv"
 )
 
-func Less(podInfo1, podInfo2 *framework.PodInfo) bool {
+func Less(podInfo1, podInfo2 *framework.QueuedPodInfo) bool {
 	return GetPodPriority(podInfo1) > GetPodPriority(podInfo2)
 }
 
-func GetPodPriority(podInfo *framework.PodInfo) int {
+func GetPodPriority(podInfo *framework.QueuedPodInfo) int {
 	if p, ok := podInfo.Pod.Labels["scv/priority"]; ok {
 		pri, _ := strconv.Atoi(p)
 		return pri

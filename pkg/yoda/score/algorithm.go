@@ -7,8 +7,7 @@ import (
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
-	framework "k8s.io/kubernetes/pkg/scheduler/framework/v1alpha1"
-	"k8s.io/kubernetes/pkg/scheduler/nodeinfo"
+	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
 // Sum is from collection/collection.go
@@ -23,10 +22,10 @@ const (
 	TotalMemoryWeight = 1
 	ActualWeight      = 2
 
-	AllocateWeight = 2
+	AllocateWeight = 3
 )
 
-func CalculateScore(s *scv.Scv, state *framework.CycleState, pod *v1.Pod, info *nodeinfo.NodeInfo) (uint64, error) {
+func CalculateScore(s *scv.Scv, state *framework.CycleState, pod *v1.Pod, info *framework.NodeInfo) (uint64, error) {
 	d, err := state.Read("Max")
 	if err != nil {
 		klog.V(3).Infof("Error Get CycleState Info: %v", err)
@@ -72,10 +71,10 @@ func CalculateActualScore(scv *scv.Scv) uint64 {
 	return (scv.Status.FreeMemorySum * 100 / scv.Status.TotalMemorySum) * ActualWeight
 }
 
-func CalculateAllocateScore(info *nodeinfo.NodeInfo, scv *scv.Scv) uint64 {
+func CalculateAllocateScore(info *framework.NodeInfo, scv *scv.Scv) uint64 {
 	allocateMemorySum := uint64(0)
-	for _, pod := range info.Pods() {
-		if mem, ok := pod.GetLabels()["scv/memory"]; ok {
+	for _, pod := range info.Pods {
+		if mem, ok := pod.Pod.GetLabels()["scv/memory"]; ok {
 			allocateMemorySum += filter.StrToUint64(mem)
 		}
 	}
