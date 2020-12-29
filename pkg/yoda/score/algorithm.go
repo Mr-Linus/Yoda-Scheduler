@@ -6,7 +6,6 @@ import (
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/collection"
 	"github.com/NJUPT-ISL/Yoda-Scheduler/pkg/yoda/filter"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/klog"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
@@ -28,8 +27,7 @@ const (
 func CalculateScore(s *scv.Scv, state *framework.CycleState, pod *v1.Pod, info *framework.NodeInfo) (uint64, error) {
 	d, err := state.Read("Max")
 	if err != nil {
-		klog.V(3).Infof("Error Get CycleState Info: %v", err)
-		return 0, err
+		return 0, errors.New("Error Get CycleState Info Max Error: "+err.Error())
 	}
 	data, ok := d.(*collection.Data)
 	if !ok {
