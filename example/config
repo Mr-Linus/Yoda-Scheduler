@@ -1,0 +1,28 @@
+apiVersion: kubescheduler.config.k8s.io/v1beta1
+kind: KubeSchedulerConfiguration
+leaderElection:
+  leaderElect: true
+  leaseDuration: 15s
+  renewDeadline: 10s
+  resourceLock: leases
+  resourceName: yoda-scheduler
+  resourceNamespace: kube-system
+  retryPeriod: 2s
+percentageOfNodesToScore: 0
+podInitialBackoffSeconds: 1
+podMaxBackoffSeconds: 10
+profiles:
+  - schedulerName: yoda-scheduler2
+    plugins:
+      filter:
+        enabled:
+          - name: yoda
+            weight: 0
+      preScore:
+        enabled:
+          - name: yoda
+            weight: 0
+      score:
+        enabled:
+          - name: yoda
+            weight: 2
