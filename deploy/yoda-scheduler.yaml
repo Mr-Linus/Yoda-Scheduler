@@ -24,6 +24,9 @@ data:
             enabled:
               - name: yoda
                 weight: 0
+          preScore:
+            enabled:
+              - name: yoda
           score:
             enabled:
               - name: yoda
@@ -55,7 +58,7 @@ spec:
             name: scheduler-config2
       containers:
         - name: yoda-scheduler
-          image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:3.0
+          image: registry.cn-hangzhou.aliyuncs.com/njupt-isl/yoda-scheduler:2.31
           imagePullPolicy: Always
           args:
             - yoda-scheduler
