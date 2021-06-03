@@ -12,7 +12,7 @@ spec:
       labels:
         app: test-deployment
     spec:
-      schedulerName: yoda-scheduler2
+      schedulerName: yoda-scheduler
       containers:
         - image: nginx
           imagePullPolicy: IfNotPresent

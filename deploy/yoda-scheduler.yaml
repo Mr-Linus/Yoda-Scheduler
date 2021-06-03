@@ -31,7 +31,7 @@ data:
             enabled:
               - name: yoda
                 weight: 300
-        schedulerName: yoda-scheduler2
+        schedulerName: yoda-scheduler
 ---
 apiVersion: apps/v1
 kind: Deployment
