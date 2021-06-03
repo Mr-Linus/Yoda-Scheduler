@@ -23,7 +23,9 @@ var Weights = map[string]int64{
 }
 
 func CalculateValueScore(value string, state *framework.CycleState, node *nodeinfo.NodeInfo) (int64, error) {
+	state.RLock()
 	d, err := state.Read(framework.StateKey("Max" + value))
+	state.RUnlock()
 	if err != nil {
 		klog.V(3).Infof("Error Get CycleState Info: %v", err)
 		return 0, err

@@ -3,13 +3,13 @@ all: local
 local:
 	GOOS=linux GOARCH=amd64 go build  -o=yoda-scheduler ./cmd/scheduler
 
-build:
-	sudo docker build --no-cache . -t registry.cn-hangzhou.aliyuncs.com/geekcloud/yoda-scheduler
+build: local
+	docker build --no-cache . -t registry.cn-hangzhou.aliyuncs.com/geekcloud/yoda-scheduler:1.0
 
-push:
-	sudo docker push registry.cn-hangzhou.aliyuncs.com/geekcloud/yoda-scheduler
+push: build
+	docker push registry.cn-hangzhou.aliyuncs.com/geekcloud/yoda-scheduler:1.0
 
 format:
-	sudo gofmt -l -w .
+	gofmt -l -w .
 clean:
-	sudo rm -f yoda-scheduler
+	rm -f yoda-scheduler
