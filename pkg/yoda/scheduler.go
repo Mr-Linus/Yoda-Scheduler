@@ -84,7 +84,7 @@ func New(_ runtime.Object, h framework.Handle) (framework.Plugin, error) {
 }
 
 func (y *Yoda) Filter(ctx context.Context, _ *framework.CycleState, pod *v1.Pod, node *framework.NodeInfo) *framework.Status {
-	fmt.Printf("filter pod: %v, node: %v\n", pod.Name, node.Node().Name)
+	klog.Infof("filter pod: %v, node: %v\n", pod.Name, node.Node().Name)
 	currentScv := &scv.Scv{}
 	err := y.cache.Get(ctx, types.NamespacedName{Name: node.Node().GetName()}, currentScv)
 	if err != nil {
@@ -102,7 +102,7 @@ func (y *Yoda) Filter(ctx context.Context, _ *framework.CycleState, pod *v1.Pod,
 }
 
 func (y *Yoda) PreScore(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*v1.Node) *framework.Status {
-	fmt.Printf("collect info for scheduling pod: %v\n", pod.Name)
+	klog.Infof("collect info for scheduling pod: %v\n", pod.Name)
 	scvList := scv.ScvList{}
 	if err := y.cache.List(ctx, &scvList); err != nil {
 		klog.Errorf("Get Scv List Error: %v", err)
@@ -127,13 +127,13 @@ func (y *Yoda) Score(ctx context.Context, state *framework.CycleState, p *v1.Pod
 	err = y.cache.Get(ctx, types.NamespacedName{Name: nodeName}, currentScv)
 	if err != nil {
 		klog.Errorf("Get SCV Error: %v", err)
-		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
+		return 0, framework.NewStatus(framework.Success, fmt.Sprintf("Score Node: %v Error: %v", nodeInfo.Node().Name, err))
 	}
 
 	uNodeScore, err := score.CalculateScore(currentScv, state, p, nodeInfo)
 	if err != nil {
 		klog.Errorf("CalculateScore Error: %v", err)
-		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node Error: %v", err))
+		return 0, framework.NewStatus(framework.Error, fmt.Sprintf("Score Node: %v Error: %v", nodeInfo.Node().Name, err))
 	}
 	nodeScore := filter.Uint64ToInt64(uNodeScore)
 	return nodeScore, framework.NewStatus(framework.Success, "")

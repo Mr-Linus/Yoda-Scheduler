@@ -8,8 +8,6 @@ leaderElection:
   resourceName: yoda-scheduler
   resourceNamespace: kube-system
   retryPeriod: 2s
-clientConnection:
-  kubeconfig: /Users/funky/.kube/config
 percentageOfNodesToScore: 0
 podInitialBackoffSeconds: 1
 podMaxBackoffSeconds: 10
