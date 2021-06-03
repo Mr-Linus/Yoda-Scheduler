@@ -26,11 +26,11 @@ const (
 )
 
 var (
-	_ framework.QueueSortPlugin  = &Yoda{}
-	_ framework.FilterPlugin     = &Yoda{}
-	_ framework.PreScorePlugin = &Yoda{}
-	_ framework.ScorePlugin      = &Yoda{}
-	_ framework.ScoreExtensions  = &Yoda{}
+	_ framework.QueueSortPlugin = &Yoda{}
+	_ framework.FilterPlugin    = &Yoda{}
+	_ framework.PreScorePlugin  = &Yoda{}
+	_ framework.ScorePlugin     = &Yoda{}
+	_ framework.ScoreExtensions = &Yoda{}
 
 	scheme = runtime.NewScheme()
 )
@@ -73,12 +73,12 @@ func New(_ runtime.Object, h framework.Handle) (framework.Plugin, error) {
 
 	scvCache := mgr.GetCache()
 
-	if scvCache.WaitForCacheSync(context.TODO()){
+	if scvCache.WaitForCacheSync(context.TODO()) {
 		return &Yoda{
 			handle: h,
 			cache:  scvCache,
 		}, nil
-	}else {
+	} else {
 		return nil, errors.New("Cache Not Sync! ")
 	}
 }
