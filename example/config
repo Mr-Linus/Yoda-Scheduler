@@ -12,7 +12,7 @@ percentageOfNodesToScore: 0
 podInitialBackoffSeconds: 1
 podMaxBackoffSeconds: 10
 profiles:
-  - schedulerName: yoda-scheduler2
+  - schedulerName: yoda-scheduler
     plugins:
       filter:
         enabled:
