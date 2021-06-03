@@ -24,6 +24,9 @@ data:
             enabled:
               - name: yoda
                 weight: 0
+          preScore:
+            enabled:
+              - name: yoda
           score:
             enabled:
               - name: yoda
