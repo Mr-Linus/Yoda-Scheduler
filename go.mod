@@ -9,7 +9,7 @@ require (
 	k8s.io/apimachinery v0.20.0
 	k8s.io/component-base v0.20.0
 	k8s.io/klog v1.0.0
-	k8s.io/kubernetes v1.20.0
+	k8s.io/kubernetes v1.20.7
 	sigs.k8s.io/controller-runtime v0.7.0
 )
 
