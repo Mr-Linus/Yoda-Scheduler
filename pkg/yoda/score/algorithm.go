@@ -25,9 +25,7 @@ const (
 )
 
 func CalculateScore(s *scv.Scv, state *framework.CycleState, pod *v1.Pod, info *framework.NodeInfo) (uint64, error) {
-	state.RLock()
 	d, err := state.Read("Max")
-	state.RUnlock()
 	if err != nil {
 		return 0, errors.New("Error Get CycleState Info Max Error: " + err.Error())
 	}
